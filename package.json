@@ -1,5 +1,5 @@
 {
-  "name": "arm",
+  "name": "aws-route-management",
   "version": "1.0.2",
   "description": "AWS Route Management",
   "main": "dist/index.js",

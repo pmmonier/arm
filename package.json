@@ -1,0 +1,44 @@
+{
+  "name": "arm",
+  "version": "1.0.0",
+  "description": "AWS Route Management",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "cpy --dot 'src/*.yml' dist/",
+    "prepare": "npm run build",
+    "test": "jest",
+    "upload": "npm version patch && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://git@github.com:pmmonier/zipToTz.git"
+  },
+  "keywords": [],
+  "author": "Pedro Monier",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^26.0.14",
+    "@types/node": "^14.11.1",
+    "aws-sdk": "^2.259.1",
+    "cpy-cli": "^3.1.1",
+    "jest": "^26.4.2",
+    "serverless": "^1.83.2",
+    "ts-jest": "^26.4.0",
+    "tslint": "^6.1.2",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "sha1": "^1.1.1",
+    "supertest": "^3.4.2",
+    "tape": "^4.13.3",
+    "uuid": "^3.4.0",
+    "validator": "^10.11.0"
+  }
+}

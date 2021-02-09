@@ -1,6 +1,6 @@
 import * as test from 'tape';
 import * as request from 'supertest';
-import {response} from './Tools';
+import {response} from './arm';
 
 export interface ITestApi {
     handler?: any;

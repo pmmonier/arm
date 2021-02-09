@@ -1,6 +1,6 @@
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
-import {response, IResponse} from './Tools';
+import {response, IResponse} from './arm';
 
 export interface ICheckRequiredParams {
     req: any;

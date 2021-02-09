@@ -9,7 +9,6 @@
   ],
   "scripts": {
     "build": "tsc",
-    "postbuild": "cpy --dot 'src/*' dist/",
     "prepare": "npm run build",
     "test": "jest",
     "upload": "npm version patch && npm publish"

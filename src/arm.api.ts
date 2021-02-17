@@ -116,11 +116,13 @@ export class Api {
 
             const _params = params[i], that = this;
             for (let y = 0; y < 2; y++) {
-                if (y === 1){
-                    method = 'get';
-                    route = `/${params[i]?.funcName?.toString().trim()}`
+                let _method = method;
+                let _route = route;
+                if (y === 0){
+                    _method = 'get';
+                    _route = `/${params[i]?.funcName?.toString().trim()}`
                 }
-                this.app[method](route, function (req, res) {
+                this.app[_method](_route, function (req, res) {
                     if (_params.allowCors === undefined) {
                         _params.allowCors = true;
                     }

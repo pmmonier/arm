@@ -1,6 +1,6 @@
 {
   "name": "aws-route-management",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "AWS Route Management",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -14,6 +14,7 @@ export interface IApi {
     instance?: any;
     get?: any; // return object from instance like "get('player') from instance.dependencies.player"
     execute?: any;
+    funcName?: string;
     executeFirst?: any;
     dependencies?: any; // {playCard: playCard, user: user}
     context: string;
@@ -25,13 +26,13 @@ export interface IApi {
     swaggerFilePath?: string;
 }
 
-export const checkRequiredParams = (r: ICheckRequiredParams): IResponse| undefined => {
+export const checkRequiredParams = (r: ICheckRequiredParams): IResponse | undefined => {
     try {
-    if (r.required && r.required.length) {
-        const _body = Object.keys(r.req.body),
-            _params = Object.keys(r.req.params);
+        if (r.required && r.required.length) {
+            const _body = Object.keys(r.req.body),
+                _params = Object.keys(r.req.params);
 
-            if(_body.length && _params.length) {
+            if (_body.length && _params.length) {
                 for (let i = 0; i < r.required.length; i++) {
                     if (_body.indexOf(r.required[i]) < 0) {
                         if (_params.indexOf(r.required[i]) > -1) {
@@ -54,9 +55,9 @@ export const checkRequiredParams = (r: ICheckRequiredParams): IResponse| undefin
                 }
             }
 
-        return response(false, 'Required parameters do not match requirements!', null);
-    }
-    }catch (error) {
+            return response(false, 'Required parameters do not match requirements!', null);
+        }
+    } catch (error) {
         console.log(65, error)
     }
 }
@@ -83,8 +84,8 @@ export class Api {
                 .set('Access-Control-Allow-Headers', 'Origin, Accept, Content-Type, X-Requested-With');
 
             process.on('unhandledRejection', (reason, p) => {
-              console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
-              // application specific logging, throwing an error, or other logic here
+                console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+                // application specific logging, throwing an error, or other logic here
             });
             next();
         });
@@ -114,52 +115,61 @@ export class Api {
             method = method.toLowerCase();
 
             const _params = params[i], that = this;
-
-            this.app[method](route, function(req, res) {
-                if (_params.allowCors === undefined) {
-                    _params.allowCors = true;
+            for (let y = 0; y < 2; y++) {
+                if (y === 1){
+                    method = 'get';
+                    route = `/${params[i]?.funcName?.toString().trim()}`
                 }
+                this.app[method](route, function (req, res) {
+                    if (_params.allowCors === undefined) {
+                        _params.allowCors = true;
+                    }
 
-                // if (_params.allowCors) {
+                    // if (_params.allowCors) {
                     res
                         .set('Access-Control-Allow-Origin', '*')
                         .set('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT')
                         .set('Access-Control-Allow-Credentials', true)
                         .set('Access-Control-Allow-Headers', 'Origin, Accept, Content-Type, X-Requested-With');
-                // }
+                    // }
 
-                if (route!.indexOf('_swagger') > -1) {
-                    return res.json(require(swaggerFilePath));
-                } else {
-                    if (_params.required && _params.required.length) {
-                        const __response = checkRequiredParams({req, required: _params.required, context: _params.context});
+                    if (route!.indexOf('_swagger') > -1) {
+                        return res.json(require(swaggerFilePath));
+                    } else {
+                        if (_params.required && _params.required.length) {
+                            const __response = checkRequiredParams({
+                                req,
+                                required: _params.required,
+                                context: _params.context
+                            });
 
-                        if (!__response!.success) {
-                            return res.status(400).json(__response);
+                            if (!__response!.success) {
+                                return res.status(400).json(__response);
+                            }
                         }
+
+                        const p = {
+                            res,
+                            req,
+                            method,
+                            instance: that,
+                            context: _params.context,
+                            execute: _params['execute'],
+                            allowCors: _params.allowCors
+                        };
+
+                        if (_params.executeFirst) {
+                            p['executeFirst'] = _params['executeFirst'];
+                        }
+
+                        that.executeRoute(p);
                     }
-
-                    const p = {
-                        res,
-                        req,
-                        method,
-                        instance: that,
-                        context: _params.context,
-                        execute: _params['execute'],
-                        allowCors: _params.allowCors
-                    };
-
-                    if (_params.executeFirst) {
-                        p['executeFirst'] = _params['executeFirst'];
-                    }
-
-                    that.executeRoute(p);
-                }
-            });
+                });
+            }
         }
     }
 
-    async executeRoute(params: IApi): Promise<IResponse| undefined> {
+    async executeRoute(params: IApi): Promise<IResponse | undefined> {
 
         const execute = params.execute,
             executeFirst = params.executeFirst,
@@ -175,7 +185,7 @@ export class Api {
                     params.method !== 'get' ? params.req.params : instance,
                     params.method !== 'get' ? instance : null);
 
-                if(awResult) {
+                if (awResult) {
 
                     if (awResult.success) {
                         const [obj, meth] = params['execute'].split('.');
@@ -183,10 +193,10 @@ export class Api {
                             params.method === 'get' ? params.req.params : params.req.body,
                             params.method !== 'get' ? params.req.params : instance,
                             params.method !== 'get' ? instance : null);
-                         if (_response) {
+                        if (_response) {
                             if (_response.success && _response.data) {
                                 if (Array.isArray(_response.data.Items)) {
-                                    return res.status(_response.data.Items.length? 200: 404).json(response(true, false, _response.data.Items.length > 1? _response.data.Items : _response.data.Items[0]));
+                                    return res.status(_response.data.Items.length ? 200 : 404).json(response(true, false, _response.data.Items.length > 1 ? _response.data.Items : _response.data.Items[0]));
                                 } else {
                                     res.status(200);
                                 }
@@ -213,7 +223,7 @@ export class Api {
                 if (_response) {
                     if (_response.success && _response.data) {
                         if (Array.isArray(_response.data.Items)) {
-                            return res.status(_response.data.Items.length? 200: 404).json(response(true, false, _response.data.Items.length > 1? _response.data.Items : _response.data.Items[0]));
+                            return res.status(_response.data.Items.length ? 200 : 404).json(response(true, false, _response.data.Items.length > 1 ? _response.data.Items : _response.data.Items[0]));
                         } else {
                             res.status(200);
                         }

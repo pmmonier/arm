@@ -119,6 +119,8 @@ export class Api {
                 let _method = method;
                 let _route = route;
                 if (y === 0){
+                    if (!params[i].funcName)
+                        continue;
                     _method = 'get';
                     _route = `/${params[i]?.funcName?.toString().trim()}`
                 }

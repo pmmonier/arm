@@ -16,6 +16,7 @@ export interface IApi {
     execute?: any;
     funcName?: string;
     executeFirst?: any;
+    serviceName?: string; // load-service-dev
     dependencies?: any; // {playCard: playCard, user: user}
     context: string;
     send?: any;
@@ -64,11 +65,15 @@ export const checkRequiredParams = (r: ICheckRequiredParams): IResponse | undefi
 
 export class Api {
     app: any;
+    serviceName: string;
     dependencies: any; // any object/class like Player, Status, Play, Game
 
-    constructor(dependencies: any) {
+    constructor(dependencies: any, serviceName?: string) {
         if (dependencies) {
             this.dependencies = dependencies;
+        }
+        if (serviceName){
+            this.serviceName = serviceName;
         }
 
         const app = express();
@@ -119,14 +124,22 @@ export class Api {
                 let _method = method;
                 let _route = route;
                 if (y === 0){
-                    if (!params[i].funcName)
+                    if (!_params.funcName || !that.serviceName)
                         continue;
-                    _method = 'get';
-                    _route = `/${params[i]?.funcName?.toString().trim()}`
+                    _method = 'post';
+                    _route = `/${this.serviceName}-${_params.funcName}`
                 }
                 this.app[_method](_route, function (req, res) {
                     if (_params.allowCors === undefined) {
                         _params.allowCors = true;
+                    }
+                    if (req.route.path != _route){
+                        _route = req.route.path;
+                        _method = req.route.stack[0].method;
+                    }
+                    if (req.apiGateway.event.params){
+                        req.params = req.apiGateway.event.params;
+                        req.body = req.apiGateway.event.body;
                     }
 
                     // if (_params.allowCors) {
@@ -137,7 +150,7 @@ export class Api {
                         .set('Access-Control-Allow-Headers', 'Origin, Accept, Content-Type, X-Requested-With');
                     // }
 
-                    if (route!.indexOf('_swagger') > -1) {
+                    if (_route!.indexOf('_swagger') > -1) {
                         return res.json(require(swaggerFilePath));
                     } else {
                         if (_params.required && _params.required.length) {
@@ -155,7 +168,7 @@ export class Api {
                         const p = {
                             res,
                             req,
-                            method,
+                            _method,
                             instance: that,
                             context: _params.context,
                             execute: _params['execute'],

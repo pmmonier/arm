@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
+    "prepare": "rm -r ./dist; npm run build",
     "test": "jest",
     "upload": "npm version patch && npm publish"
   },

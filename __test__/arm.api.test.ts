@@ -1,5 +1,11 @@
-import { handledPromise } from '../src/arm';
+import { response } from "../src";
+import { lambdaRequest, lambdaContext, httpRequest, httpContext, Example } from '../test';
 
-test('example', () => {
-    // expect(new ZipToTz().full('33487')).toBe('America/New_York');
+test('lambda execution', async () => {
+    const resp = await new Example().handler(lambdaRequest, lambdaContext);
+    expect(resp.body).toBe(JSON.stringify(response(true, null, {})));
+});
+test('http request',async () => {
+    const resp = await new Example().handler(httpRequest, httpContext);
+    expect(resp.body).toBe(JSON.stringify(response(true, null, {})));
 });

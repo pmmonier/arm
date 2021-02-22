@@ -1,7 +1,7 @@
 module.exports = {
   roots: ["<rootDir>"],
   testPathIgnorePatterns: [
-    '/dist/',
+    '/dist/', '/src/'
   ],
   testRegex: '(__test__/.*|(\\.|/)(test|spec))\\.ts$',
   transform: {

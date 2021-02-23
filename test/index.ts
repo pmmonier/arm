@@ -19,9 +19,58 @@ export class Example {
         }
     }
 
-    async update(body: { updateFields: any }, params: { id: string }, api: IApi): Promise<IResponse> {
+    async getFullName(params: { id: string }, api?: IApi): Promise<IResponse> {
         try {
-            return response(true, null, {})
+            let student = {
+                id: '55',
+                name: 'Pedro',
+                lastName: 'Garcia',
+                height: 5.9,
+                weight: 170,
+                age: 20
+            };
+            if (params.id != student.id)
+                return response(false, 'Invalid Student ID');
+            return response(true, null, {fullName: student.name + ' ' + student.lastName});
+        } catch (error) {
+            return response(false, error)
+        }
+    }
+
+    async update(body: { age: number }, params: { id: string }, api: IApi): Promise<IResponse> {
+        try {
+            let student = {
+                id: '55',
+                name: 'Pedro',
+                lastName: 'Garcia',
+                height: 5.9,
+                weight: 170,
+                age: 20
+            };
+            if (params.id != student.id)
+                return response(false, 'Invalid Student ID');
+            student.age = body.age;
+            return response(true, null, student);
+        } catch (error) {
+            return response(false, error)
+        }
+    }
+
+    async create(body: any , params: null, api: IApi): Promise<IResponse> {
+        try {
+            let student = {
+                id: '55',
+                name: 'Pedro',
+                lastName: 'Garcia',
+                height: 5.9,
+                weight: 170,
+                age: 20
+            };
+            const studentKeys = Object.keys(student).sort();
+            const bodyKeys = Object.keys(body).sort();
+            if (JSON.stringify(studentKeys) !== JSON.stringify(bodyKeys))
+                return response(false, 'Invalid Student');
+            return response(true, null, {});
         } catch (error) {
             return response(false, error)
         }
@@ -45,18 +94,32 @@ const api = new Api({
 
 api.routes([
     {
-        route: "patch /api/load/:id",
-        context: "Load",
+        route: "patch /api/student/:id",
+        context: "Student",
         execute: 'example.update',
-        funcName: 'updateLoad',
-        required: ['id', 'updateFields']
+        funcName: 'update',
+        required: ['id']
+    },
+    {
+        route: "get /api/student/:id",
+        context: "Student",
+        execute: 'example.getFullName',
+        funcName: 'getFullName',
+        required: ['id']
+    },
+    {
+        route: "put /api/student",
+        context: "Student",
+        execute: 'example.create',
+        funcName: 'create',
+        required: []
     }
 ]);
 
 export const lambdaRequest = {
-    params: { id: '02af4bd0-6bd9-11eb-9ad2-d9fac26bbf15'},
+    params: { id: '55'},
     body: {
-        updateFields: {status: 'available'}
+        age: 25
     }
 };
 export const lambdaContext = {
@@ -65,19 +128,19 @@ export const lambdaContext = {
     fail: {},
     done: {},
     functionVersion: "$LATEST",
-    functionName: "testing-updateLoad",
+    functionName: "testing-update",
     memoryLimitInMB: "1024",
-    logGroupName: "/aws/lambda/testing-updateLoad",
+    logGroupName: "/aws/lambda/testing-update",
     logStreamName: "2021/02/22/[$LATEST]f8f12df9b7b2435b8b40fc7cf79d899f",
     clientContext: "undefined",
     identity: "undefined",
-    invokedFunctionArn: "arn:aws:lambda:us-east-1:************:function:testing-updateLoad",
+    invokedFunctionArn: "arn:aws:lambda:us-east-1:************:function:testing-update",
     awsRequestId: "1b0e5ce4-563e-41c5-93ad-6e65e152f4f6",
     getRemainingTimeInMillis: {}
 };
 export const httpRequest = {
-    resource: "/api/load/{id}",
-    path: "/api/load/02af4bd0-6bd9-11eb-9ad2-d9fac26bbf15",
+    resource: "/api/student/{id}",
+    path: "/api/student/55",
     httpMethod: "PATCH",
     headers: {
         "Accept": "*/*",
@@ -122,17 +185,17 @@ export const httpRequest = {
     queryStringParameters: null,
     multiValueQueryStringParameters: null,
     pathParameters: {
-        id: "02af4bd0-6bd9-11eb-9ad2-d9fac26bbf15"
+        id: "55"
     },
     stageVariables: null,
     requestContext: {
         resourceId: "hnav91",
-        resourcePath: "/api/load/{id}",
+        resourcePath: "/api/student/{id}",
         httpMethod: "PATCH",
         extendedRequestId: "bKlxsGbXIAMF6Rg=",
         requestTime: "22/Feb/2021:21:06:31 +0000",
-        path: "/dev/api/load/02af4bd0-6bd9-11eb-9ad2-d9fac26bbf15",
-        accountId: "628435390813",
+        path: "/dev/api/student/55",
+        accountId: "************",
         protocol: "HTTP/1.1",
         stage: "dev",
         domainPrefix: "s1lqpt3yog",
@@ -156,9 +219,7 @@ export const httpRequest = {
         apiId: "s1lqpt3yog"
     },
     body: {
-        updateFields: {
-            status: "available"
-        }
+        age: 25
     },
     isBase64Encoded: false
 };
@@ -168,13 +229,14 @@ export const httpContext = {
     fail: {},
     done: {},
     functionVersion: "$LATEST",
-    functionName: "testing-updateLoad",
+    functionName: "testing-update",
     memoryLimitInMB: "1024",
-    logGroupName: "/aws/lambda/testing-updateLoad",
+    logGroupName: "/aws/lambda/testing-update",
     logStreamName: "2021/02/22/[$LATEST]f1f8f043cd2f44999c8c847c19e788e7",
     clientContext: "undefined",
     identity: "undefined",
-    invokedFunctionArn: "arn:aws:lambda:us-east-1:************:function:testing-updateLoad",
+    invokedFunctionArn: "arn:aws:lambda:us-east-1:************:function:testing-update",
     awsRequestId: "f4f2e8d8-d8e5-4ac9-b9d0-81bb3f0b4b8a",
     getRemainingTimeInMillis: {}
 };
+export const test = api.app; // mandatory for supertest

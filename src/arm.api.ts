@@ -168,7 +168,7 @@ export class Api {
                         const p = {
                             res,
                             req,
-                            _method,
+                            method: _method,
                             instance: that,
                             context: _params.context,
                             execute: _params['execute'],

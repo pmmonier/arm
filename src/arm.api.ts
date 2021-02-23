@@ -137,7 +137,7 @@ export class Api {
                         _route = req.route.path;
                         _method = req.route.stack[0].method;
                     }
-                    if (req.apiGateway.event.params){
+                    if (req.apiGateway && req.apiGateway.event && req.apiGateway.event.params){
                         req.params = req.apiGateway.event.params;
                         req.body = req.apiGateway.event.body;
                     }
